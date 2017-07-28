@@ -1,0 +1,77 @@
+<?php
+session_start();
+include "../models/ConnectionBD.php";
+?>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/style_bot.css" rel="stylesheet">
+</head>
+<body>
+
+<form name="MyForm" method="POST" enctype="multipart/form-data" action="../models/Manager.php">
+    <!-- НАВИГАЦИЯ ГЛАВНОГО МЕНЮ-->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#menu">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse" id="menu">
+                <ul class="nav navbar-nav">
+                    <li><a href="../models/Tovar.php">Каталог</a></li>
+                    <li><a href="../models/Manager.php">Поставщики</a></li>
+                    <li><a href="../models/Order.php">Заказы</a></li>
+                    <?php
+                    if(isset($_SESSION['roles']) and $_SESSION['roles'] == 3) {
+                         echo"<li><a href='../models/Cart.php'>Корзина</a></li>";
+                    }
+                    ?>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!--МОДАЛЬНАЯ ДЛЯ Редактирования товара-->
+    <div class="modal" id="modal-6">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"> <h3>Редактирование товара</h3></div>
+                <div class="modal-body">
+                    <table class="table_olimp" style=" margin-left: 20px;">
+                        <?php
+                        if(isset($_POST['EddManager'])) {
+                            $manager = new Manager();
+                            $manager = $manager->getManager($_POST['EddManager']);
+
+                        echo"<tr style='height:30px;'>
+                        <td>Название компании</td>
+                        <td> <input type='text' name='edd_name_company' maxlength='10' value = '$manager->name_company' style='width: 149px; height: 24.6'> <input type='hidden' name='managerId' value='$manager->id_user'></td>
+                    </tr>
+                        <tr style='height:30px;'>
+                            <td>Описание</td>
+                            <td> <textarea name='edd_about' style='width: 149px; height: 100px'>$manager->about_by_company</textarea></td>
+                        </tr>";
+                        }
+                        ?>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <input class='btn btn-success' type='submit' name='SaveEddManager' value='Редактировать'>;
+                    <button class="btn btn-danger" type="button" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="../js/bootstrap.js"></script>
+</body>
+</html>

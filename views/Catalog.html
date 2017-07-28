@@ -1,0 +1,348 @@
+<?php
+session_start();
+include "../models/ConnectionBD.php";
+?>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/style_bot.css" rel="stylesheet">
+</head>
+<body>
+
+<form name="MyForm" method="POST" enctype="multipart/form-data" action="../models/Tovar.php">
+    <!-- НАВИГАЦИЯ ГЛАВНОГО МЕНЮ-->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#menu">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse" id="menu">
+                <ul class="nav navbar-nav">
+                    <li><a href="../models/Tovar.php">Каталог</a></li>
+                    <li><a href="../models/Manager.php">Поставщики</a></li>
+                    <li><a href="../models/Order.php">Заказы</a></li>
+                    <?php
+                    if(isset($_SESSION['roles']) and $_SESSION['roles'] == 3) {
+                         echo"<li><a href='../models/Cart.php'>Корзина</a></li>";
+                    }
+                    if(isset($_SESSION['roles'])) {
+                        echo "<li><input class='btn btn-link btn-lg btn-block' type='submit' name='destroyAvt' data-toggle='modal' value='Выйти'></li>";
+                        if($_SESSION['roles'] == 1) {
+                           echo "<li><input class='btn btn-link btn-lg btn-block' type='button' name='rightsUser' data-toggle='modal' data-target='#modal-3' value='Добавить товар'></li>
+                                 <li><input class='btn btn-link btn-lg btn-block' type='button' name='rightsUser' data-toggle='modal' data-target='#modal-5' value='Добавить поставщика'></li>
+                                <li><input class='btn btn-link btn-lg btn-block' type='button' name='rightsUser' data-toggle='modal' data-target='#modal-6' value='Добавить модель'></li>
+
+                            ";
+                        }
+                    if($_SESSION['roles'] == 2) {
+                    echo "<li><input class='btn btn-link btn-lg btn-block' type='button' name='rightsUser' data-toggle='modal' data-target='#modal-3' value='Добавить товар'></li>
+                    <li><input class='btn btn-link btn-lg btn-block' type='button' name='rightsUser' data-toggle='modal' data-target='#modal-6' value='Добавить модель'></li>
+                    ";
+                        }
+                    } else {
+                    echo "<li><input class='btn btn-link btn-lg btn-block' type='button' name='avt' data-toggle='modal' data-target='#modal-1' value='Войти'></li>
+                          <li><input class='btn btn-link btn-lg btn-block' type='button' name='regist' data-toggle='modal' data-target='#modal-2' value='Регистрация'></li>
+                    ";
+                    }
+                    ?>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+    <!--МОДАЛЬНАЯ ДЛЯ Авторизации-->
+    <div class="modal" id="modal-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"> <h3>Авторизация</h3></div>
+                <div class="modal-body">
+                    <table class="table_olimp" style=" margin-left: 20px;">
+                        <tr style="height:30px;">
+                            <td>Логин</td>
+                            <td> <input type="text" name="login" maxlength='10' style="width: 149px; height: 24.6"></td>
+                        </tr>
+                        <tr style="height:30px;">
+                            <td>Пароль</td>
+                            <td> <input type="text" name="password" maxlength='10' style="width: 149px; height: 24.6"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <input class="btn btn-success" type="submit" name="saveAut" value="Сохранить">
+                    <button class="btn btn-danger" type="button" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--МОДАЛЬНАЯ ДЛЯ Регистрации-->
+    <div class="modal" id="modal-2">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"> <h3>Регистрация</h3></div>
+                <div class="modal-body">
+                    <table class="table_olimp" style=" margin-left: 20px;">
+                        <tr style="height:30px;">
+                            <td>Логин</td>
+                            <td> <input type="text" name="login_reg" maxlength='10' style="width: 149px; height: 24.6"></td>
+                        </tr>
+                        <tr style="height:30px;">
+                            <td>Пароль</td>
+                            <td> <input type="text" name="password_reg" maxlength='10' style="width: 149px; height: 24.6"></td>
+                        </tr>
+                        <tr style="height:30px;">
+                            <td>ФИО</td>
+                            <td> <input type="text" name="fio_reg" maxlength='15' style="width: 149px; height: 24.6"></td>
+                        </tr>
+                        <tr style="height:30px;">
+                            <td>Номер карты</td>
+                            <td> <input type="text" name="map_number_reg" maxlength='11' style="width: 149px; height: 24.6"></td>
+                        </tr>
+                        <tr style="height:30px;">
+                            <td>Код</td>
+                            <td> <input type="text" name="map_code_reg" maxlength='3' style="width: 149px; height: 24.6"></td>
+                        </tr>
+
+                     <!--   <tr style="height:30px;">
+                            <td>Роль</td>
+                            <td> <select name="selectedRole" id="con">
+                                <option name="optionRole">
+
+                                </option>
+                                <?php
+                              /*  if(isset($_SESSION['selectRoles'])) {
+                                    foreach ($_SESSION['selectRoles'] as $key => $value) {
+                                    $id = $value['id_roles'];
+                                    $name = $value['name'];
+                                    echo "<option name='optionRole', value=$id> $name</option>";
+                                    }
+                                } */
+                                ?>
+                            </select> </td>
+                        </tr> -->
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <input class="btn btn-success" type="submit" name="saveReg" value="Сохранить">
+                    <button class="btn btn-danger" type="button" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--МОДАЛЬНАЯ ДЛЯ Добавления товара-->
+    <div class="modal" id="modal-3">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"> <h3>Добавления товара</h3></div>
+                <div class="modal-body">
+                    <table class="table_olimp" style=" margin-left: 20px;">
+                        <tr style="height:30px;">
+                            <td>Название товара</td>
+                            <td> <input type="text" name="t_name" maxlength='10' style="width: 149px; height: 24.6"></td>
+                        </tr>
+                        <tr style="height:30px;">
+                            <td>Цена</td>
+                            <td> <input type="text" name="t_price" maxlength='10' style="width: 149px; height: 24.6"></td>
+                        </tr>
+                        <tr style="height:30px;">
+                            <td>Описание</td>
+                            <td> <textarea name="t_about" style="width: 250px; height: 100px"></textarea></td>
+                        </tr>
+                        <tr style="height:30px;">
+                            <td>Модель</td>
+                            <td> <select name="selectedModels" id="con1">
+                                <option name="optionModels">
+                                    <!-- Выбор поставщика -->
+                                </option>
+                                <?php
+                                if(isset($_SESSION['selectModel'])) {
+                                    foreach ($_SESSION['selectModel'] as $key => $value) {
+                                        $id = $value['id'];
+                                        $name = $value['name'];
+                                        echo "<option name='optionModels', value=$id> $name</option>";
+                                    }
+                                }
+                                ?>
+                            </select> </td>
+                        </tr>
+                        <?php
+                            if(isset($_SESSION['roles']) && $_SESSION['roles'] == 1) {
+                                echo "<tr style='height:30px;'>
+                        <td>Поставщик</td>
+                        <td> <select name='SelectedManager' id='con3'>
+                            <option name='OptionManager'>
+                                <!-- Выбор поставщика -->
+                            </option>";
+
+                            if(isset($_SESSION['selectManager'])) {
+                            foreach ($_SESSION['selectManager'] as $key => $value) {
+                            $id = $value['id_user'];
+                            $name_company = $value['name_company'];
+                            echo "<option name='OptionManager', value=$id> $name_company</option>";
+                            }
+                            }
+                            echo" </select> </td>
+                        </tr>";
+                        }
+                        ?>
+                        <tr style="height:30px;">
+                            <td>Изображение</td>
+                            <td> <input type="file" name="uploadFile" accept="image/jpeg"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <input class='btn btn-success' type='submit' name='SaveAddTovar' value='Сохранить'>;
+                    <button class="btn btn-danger" type="button" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--МОДАЛЬНАЯ ДЛЯ Редактирования товара-->
+    <div class="modal" id="modal-4">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"> <h3>Редактирование товара</h3></div>
+                <div class="modal-body">
+                    <table class="table_olimp" style=" margin-left: 20px;">
+                        <?php
+                        if(isset($_POST['EddTovar'])) {
+                            $tovar = new Tovar();
+                            $tovar = $tovar->getTovar($_POST['EddTovar']);
+                            echo"<tr style='height:30px;'>
+                                    <td>Название товара</td>
+                                    <td> <input type='text' name='edd_name' maxlength='10' value = '$tovar->name' style='width: 149px; height: 24.6'> <input type='hidden' name='tovarId' value='$tovar->id_tovar'></td>
+                                </tr>
+                                <tr style='height:30px;'>
+                                    <td>Цена</td>
+                                    <td> <input type='text' name='edd_price' maxlength='10' value = '$tovar->price' style='width: 149px; height: 24.6'></td>
+                                </tr>
+                                <tr style='height:30px;'>
+                                    <td>Описание</td>
+                                    <td> <textarea name='edd_about' style='width: 149px; height: 100px'>$tovar->about_by_tovar</textarea></td>
+                                </tr>";
+                        }
+                        ?>
+
+                        <tr style="height:30px;">
+                            <td>Модель</td>
+                            <td> <select name="eddSelectedModels" id="con4">
+                                <option name="eddOptionModels">
+                                    <!-- Выбор поставщика -->
+                                </option>
+                                <?php
+                                if(isset($_SESSION['selectModel'])) {
+                                    foreach ($_SESSION['selectModel'] as $key => $value) {
+                                $id = $value['id'];
+                                $name = $value['name'];
+                                echo "<option name='eddOptionModels', value=$id> $name</option>";
+                                }
+                                }
+                                ?>
+                            </select> </td>
+                        </tr>
+                        <?php
+                            if(isset($_SESSION['roles']) && $_SESSION['roles'] == 1) {
+                                echo "<tr style='height:30px;'>
+                                <td>Поставщик</td>
+                                <td> <select name='eddSelectedManager' id='con3'>
+                                <option name='eddOptionManager'>
+                                <!-- Выбор поставщика -->
+                                </option>";
+
+                                if(isset($_SESSION['selectManager'])) {
+                                    foreach ($_SESSION['selectManager'] as $key => $value) {
+                                        $id = $value['id_user'];
+                                        $name_company = $value['name_company'];
+                                        echo "<option name='eddOptionManager', value=$id> $name_company</option>";
+                                    }
+                                }
+                                echo" </select> </td>
+                                </tr>;";
+                            }
+                        ?>
+
+                        <tr style="height:30px;">
+                            <td>Изображение</td>
+                            <td> <input type="file" name="eddUploadFile" accept="image/jpeg"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <input class='btn btn-success' type='submit' name='SaveEddTovar' value='Редактировать'>;
+                    <button class="btn btn-danger" type="button" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--МОДАЛЬНАЯ ДЛЯ Добавления Поставщика-->
+    <div class="modal" id="modal-5">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"> <h3>Добавить поставщика</h3></div>
+                <div class="modal-body">
+                    <table class="table_olimp" style=" margin-left: 20px;">
+                        <tr style="height:30px;">
+                            <td>Логин</td>
+                            <td> <input type="text" name="LoginM" maxlength='10' style="width: 149px; height: 24.6"></td>
+                        </tr>
+                        <tr style="height:30px;">
+                            <td>Пароль</td>
+                            <td> <input type="text" name="PasswordM" maxlength='10' style="width: 149px; height: 24.6"></td>
+                        </tr>
+                        <tr style="height:30px;">
+                            <td>Название</td>
+                            <td> <input type="text" name="NameCompany" maxlength='15' style="width: 149px; height: 24.6"></td>
+                        </tr>
+                        <tr style="height:30px;">
+                            <td>Описание компании</td>
+                            <td> <textarea name="AboutCompany" style="width: 250px; height: 100px"></textarea></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <input class="btn btn-success" type="submit" name="saveRegManager" value="Сохранить">
+                    <button class="btn btn-danger" type="button" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--МОДАЛЬНАЯ ДЛЯ Добавления Модели-->
+    <div class="modal" id="modal-6">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"> <h3>Добавить модель</h3></div>
+                <div class="modal-body">
+                    <table class="table_olimp" style=" margin-left: 20px;">
+                        <tr style="height:30px;">
+                            <td>Название</td>
+                            <td> <input type="text" name="nameModel" maxlength='10' style="width: 149px; height: 24.6"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <input class="btn btn-success" type="submit" name="saveModel" value="Сохранить">
+                    <button class="btn btn-danger" type="button" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="../js/bootstrap.js"></script>
+</body>
+</html>
